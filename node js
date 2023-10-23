@@ -93,7 +93,7 @@ app.get("/", (req, res) => res.sendFile(path.join(__dirname, "/index.html")));
 app.post("/", async (req, res) => {
   assembly = new WebSocket(
     "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=8000",
-    { headers: { authorization: "ad9c1cf2644342dda94e0a4f23bb5037" } }
+    { headers: { authorization: "my key" } }
   );
 
   res.set("Content-Type", "text/xml");
