@@ -5,6 +5,10 @@ import websockets
 from flask import Flask
 from gevent.pywsgi import WSGIServer
 from geventwebsocket.handler import WebSocketHandler
+import assemblyai
+import twilio
+from twilio.rest import Client
+from twilio.twiml.voice_response import VoiceResponse, Gather, Say, Dial, Play
 
 
 def main():
@@ -19,7 +23,7 @@ async def connection(websockets, path):
 
 start_server = websockets.serve(connection, "localhost", 8090)  # You can change the host and port as needed
 
-asyncio.get_event_loop().run_until_complete(start_server)
+#asyncio.get_event_loop().run_until_complete(start_server)
 
 assembly = None
 
@@ -54,6 +58,17 @@ async def handler(websocket, path):
                         "event": "interim-transcription",
                         "text": msg_text
                     }))
+                else:
+                    break
+
+            if event == "start":
+                stream_sid = msg.get('streamSid')
+                if stream_sid:
+                    print(f"Starting Media Stream {stream_sid}")
+                    assembly = assemblyai.Client(token)
+                else:
+                    print("streamSid not found in msg")
+
 
 
 app = Flask(__name__)
@@ -66,6 +81,6 @@ def index():
 
 if __name__ == '__main__':
     http_server = WSGIServer(('', 8090), app, handler_class=WebSocketHandler)
-    app.run(port=8000)
+    app.run(port=8020)
 
 print('all good')
