@@ -1,12 +1,13 @@
 import asyncio
 import json
-
-import websockets
-from flask import Flask
-from gevent.pywsgi import WSGIServer
-from geventwebsocket.handler import WebSocketHandler
 import assemblyai
 import twilio
+import websockets
+
+from flask import Flask, request, Response
+from gevent.pywsgi import WSGIServer
+from geventwebsocket.handler import WebSocketHandler
+from twilio import twiml
 from twilio.rest import Client
 from twilio.twiml.voice_response import VoiceResponse, Gather, Say, Dial, Play
 
@@ -70,6 +71,28 @@ async def handler(websocket, path):
                     print("streamSid not found in msg")
 
 
+
+def index():
+    assembly_url = "wss://api.assemblyai.com/v2/realtime/ws?sample_rate=8000"
+    headers = {
+        "authorization": "my key"
+    }
+    assembly = websocket.create_connection(assembly_url, header=headers)
+
+    response_content = """
+    <Response>
+        <Start>
+            <Stream url='wss://{}' />
+        </Start>
+        <Say>
+            Start speaking to see your audio transcribed in the console
+        </Say>
+        <Pause length='30' />
+    </Response>
+    """.format(request.headers['host'])
+
+    response = Response(response_content, content_type="text/xml")
+    return response
 
 app = Flask(__name__)
 
